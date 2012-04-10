@@ -7,7 +7,7 @@ public class CityComparator implements Comparator<City> {
 		Double revenue1 = o1.getTotalRevenue();
 		Double revenue2 = o2.getTotalRevenue();
 
-       return revenue1.compareTo(revenue2);
+       return revenue2.compareTo(revenue1);
 	}
 
 }

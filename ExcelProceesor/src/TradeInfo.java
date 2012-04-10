@@ -48,6 +48,13 @@ public class TradeInfo {
 	private double averageMarketRevenueLY;
 	private double totalMarketRevenueTY;
 	private double totalMarketRevenueLY;
+	private String destinationCity;
+	public String getDestinationCity() {
+		return destinationCity;
+	}
+	public void setDestinationCity(String destinationCity) {
+		this.destinationCity = destinationCity;
+	}
 	public double getTotalMarketRevenueTY() {
 		return totalMarketRevenueTY;
 	}

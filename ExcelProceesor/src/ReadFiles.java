@@ -73,14 +73,16 @@ public class ReadFiles {
 
 				TradeInfo info = null;
 				try {
-					String name = row.getCell(0).getStringCellValue();
-					double revenueTY = row.getCell(1).getNumericCellValue();
-					double revenueLY = row.getCell(3).getNumericCellValue();
+					String name = row.getCell(2).getStringCellValue();
+					double revenueTY = row.getCell(7).getNumericCellValue();
+					double revenueLY = row.getCell(9).getNumericCellValue();
+					String destCity=row.getCell(1).getStringCellValue();
 
 					info = new TradeInfo();
 					info.setName(name);
 					info.setMarketRevenueTY(revenueTY);
 					info.setMarketRevenueLY(revenueLY);
+					info.setDestinationCity(destCity);
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					// ignore
@@ -92,41 +94,11 @@ public class ReadFiles {
 			sheetData.removeAll(Collections.singletonList(null));
 
 			
-				Collection<String> companyNames = getCompanyNames(sheetData);
+				Collection<String> companyNames = getCompanyNames(sheetData);				
 
-				for (String name : companyNames) {
-
-					List<TradeInfo> companyInfoList = getCompanyInfoListByName(
-							sheetData, name);
-
-					Double totalRevenueTY = 0.0;
-					Double totalRevenueLY = 0.0;
-
-					for (TradeInfo tradeInfo : companyInfoList) {
-
-						totalRevenueTY += tradeInfo.getMarketRevenueTY();
-						totalRevenueLY += tradeInfo.getMarketRevenueLY();
-
-					}
-
-					double averageRevenueTY = totalRevenueTY
-							/ companyInfoList.size();
-					double averageRevenueLY = totalRevenueLY
-							/ companyInfoList.size();
-
-					/*
-					 System.out.println("company name: " + name
-							+ " average values are: " + averageRevenueTY + " "
-							+ averageRevenueLY);
-							*/
-					 for (TradeInfo tradeInfo : companyInfoList) {
-						 tradeInfo.setTotalMarketRevenueTY(totalRevenueTY);
-						 tradeInfo.setTotalMarketRevenueLY(totalRevenueLY);
-						 tradeInfo.setAverageMarketRevenueTY(averageRevenueTY);
-						 tradeInfo.setAverageMarketRevenueLY(averageRevenueLY);
-					}
-
-				}
+				setRevenuesPerCompany(sheetData, companyNames);
+				
+				
 				XSSFWorkbook newWB          = new XSSFWorkbook();
 				XSSFSheet newSheet = newWB.createSheet();
 				CellStyle cellStyle = newWB.createCellStyle();
@@ -224,6 +196,66 @@ public class ReadFiles {
 
 	}
 
+	private static void setRevenuesPerCompany(List<TradeInfo> sheetData,
+			Collection<String> companyNames) {
+		for (String name : companyNames) {
+
+			List<TradeInfo> companyInfoList = getCompanyInfoListByName(
+					sheetData, name);
+
+			Double totalRevenueTY = 0.0;
+			Double totalRevenueLY = 0.0;
+
+			for (TradeInfo tradeInfo : companyInfoList) {
+
+				totalRevenueTY += tradeInfo.getMarketRevenueTY();
+				totalRevenueLY += tradeInfo.getMarketRevenueLY();
+
+			}
+
+			double averageRevenueTY = totalRevenueTY
+					/ companyInfoList.size();
+			double averageRevenueLY = totalRevenueLY
+					/ companyInfoList.size();
+
+			/*
+			 System.out.println("company name: " + name
+					+ " average values are: " + averageRevenueTY + " "
+					+ averageRevenueLY);
+					*/
+			 for (TradeInfo tradeInfo : companyInfoList) {
+				 tradeInfo.setTotalMarketRevenueTY(totalRevenueTY);
+				 tradeInfo.setTotalMarketRevenueLY(totalRevenueLY);
+				 tradeInfo.setAverageMarketRevenueTY(averageRevenueTY);
+				 tradeInfo.setAverageMarketRevenueLY(averageRevenueLY);
+			}
+			 
+			 Collection<String> cityNames = getCityNames(sheetData);
+			 List <City> cityList=new ArrayList<City>();
+				for (String cityName : cityNames) {
+					double totalRevenue=getTotalRevenueByCity(companyInfoList, cityName);
+					City city=new City();
+					city.setName(cityName);
+					city.setTotalRevenue(totalRevenue);					
+					cityList.add(city);
+				}
+
+		}
+	}
+
+	private static double getTotalRevenueByCity(
+			List<TradeInfo> companyInfoList, String city) {
+		double totalRevenue=0;
+		
+		for (TradeInfo tradeInfo : companyInfoList) {
+
+			if (city!=null && city.equals(tradeInfo.getDestinationCity()))
+				totalRevenue=totalRevenue+tradeInfo.getTotalMarketRevenueTY();
+		}
+		
+		return totalRevenue;
+	}
+
 	private static List<TradeInfo> getCompanyInfoListByName(
 			List<TradeInfo> sheetData, String name) {
 		// TODO Auto-generated method stub
@@ -254,6 +286,21 @@ public class ReadFiles {
 		}
 		System.out.println("there are " + distinctNmesList.size()
 				+ " different companies");
+
+		return distinctNmesList;
+
+	}
+	
+	private static Collection<String> getCityNames(List<TradeInfo> sheetData) {
+		Set<String> distinctNmesList = new HashSet<String>();
+		for (TradeInfo tradeInfo : sheetData) {
+//			if(tradeInfo.getName()==null)
+//				System.out.println("this guys name is null: "+tradeInfo.toString());
+
+			distinctNmesList.add(tradeInfo.getDestinationCity());
+		}
+		System.out.println("there are " + distinctNmesList.size()
+				+ " different cities for this company");
 
 		return distinctNmesList;
 

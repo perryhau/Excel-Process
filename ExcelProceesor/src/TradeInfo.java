@@ -46,6 +46,20 @@ public class TradeInfo {
 	private double marketRevenueLY;
 	private double averageMarketRevenueTY;
 	private double averageMarketRevenueLY;
+	private double totalMarketRevenueTY;
+	private double totalMarketRevenueLY;
+	public double getTotalMarketRevenueTY() {
+		return totalMarketRevenueTY;
+	}
+	public void setTotalMarketRevenueTY(double totalMarketRevenueTY) {
+		this.totalMarketRevenueTY = totalMarketRevenueTY;
+	}
+	public double getTotalMarketRevenueLY() {
+		return totalMarketRevenueLY;
+	}
+	public void setTotalMarketRevenueLY(double totalMarketRevenueLY) {
+		this.totalMarketRevenueLY = totalMarketRevenueLY;
+	}
 	
 
 }

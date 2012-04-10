@@ -75,12 +75,12 @@ public class ReadFiles {
 				try {
 					String name = row.getCell(0).getStringCellValue();
 					double revenueTY = row.getCell(1).getNumericCellValue();
-					double revenueTL = row.getCell(3).getNumericCellValue();
+					double revenueLY = row.getCell(3).getNumericCellValue();
 
 					info = new TradeInfo();
 					info.setName(name);
 					info.setMarketRevenueTY(revenueTY);
-					info.setMarketRevenueLY(revenueTL);
+					info.setMarketRevenueLY(revenueLY);
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					// ignore
@@ -120,6 +120,8 @@ public class ReadFiles {
 							+ averageRevenueLY);
 							*/
 					 for (TradeInfo tradeInfo : companyInfoList) {
+						 tradeInfo.setTotalMarketRevenueTY(totalRevenueTY);
+						 tradeInfo.setTotalMarketRevenueLY(totalRevenueLY);
 						 tradeInfo.setAverageMarketRevenueTY(averageRevenueTY);
 						 tradeInfo.setAverageMarketRevenueLY(averageRevenueLY);
 					}
@@ -137,7 +139,7 @@ public class ReadFiles {
 				//for (int j = 39999; j <80000; j++) {
 					for (int j = 1; j <40000; j++) {
 					XSSFRow row     = newSheet.createRow(j); 
-					TradeInfo tradeInformation=sheetData.get(j);
+					TradeInfo tradeInformation=sheetData.get(j-1);
 					
 					XSSFCell cell   = row.createCell((short)0); 
 					cell.setCellValue(tradeInformation.getName()); 
@@ -145,6 +147,8 @@ public class ReadFiles {
 					row.createCell((short)2).setCellValue(tradeInformation.getAverageMarketRevenueTY());
 					row.createCell((short)3).setCellValue(tradeInformation.getMarketRevenueLY());
 					row.createCell((short)4).setCellValue(tradeInformation.getAverageMarketRevenueLY());
+					row.createCell((short)5).setCellValue(tradeInformation.getTotalMarketRevenueTY());
+					row.createCell((short)6).setCellValue(tradeInformation.getTotalMarketRevenueLY());
 
 					
 				}
@@ -196,7 +200,7 @@ public class ReadFiles {
 				*/
 
 			System.out.println("writing output file");
-			FileOutputStream fileOut = new FileOutputStream("C:\\Kitap5.xlsx");
+			FileOutputStream fileOut = new FileOutputStream("C:\\Kitap3.xlsx");
 			newWB.write(fileOut);
 	        fileOut.close();
 	        System.out.println("COMPLETED");
@@ -281,6 +285,14 @@ public class ReadFiles {
 		XSSFCell cell5   = row.createCell((short)4); 
 		cell5.setCellValue("Average Market Revenue LY");
 		cell5.setCellStyle(cellStyle);
+		
+		XSSFCell cell6   = row.createCell((short)5); 
+		cell6.setCellValue("TOTAL Market Revenue TY");
+		cell6.setCellStyle(cellStyle);
+
+		XSSFCell cell7   = row.createCell((short)6); 
+		cell7.setCellValue("TOTAL Market Revenue LY");
+		cell7.setCellStyle(cellStyle);
 		
 //		row.createCell((short)1).setCellValue("Market Revenue TY");
 //		row.createCell((short)2).setCellValue("Average Market Revenue TY"); 

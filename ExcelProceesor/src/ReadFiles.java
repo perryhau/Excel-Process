@@ -27,7 +27,8 @@ public class ReadFiles {
 
 		// path information.
 
-		String filename = "C:\\Kitap2.xlsx";
+		//String filename = "C:\\Kitap2.xlsx";
+		String filename = "C:\\US 2012.1-2.xlsx";
 		// Create an ArrayList to store the data read from excel sheet.
 
 		List<TradeInfo> sheetData = new ArrayList<TradeInfo>();
@@ -73,10 +74,10 @@ public class ReadFiles {
 
 				TradeInfo info = null;
 				try {
-					String name = row.getCell(2).getStringCellValue();
-					double revenueTY = row.getCell(7).getNumericCellValue();
-					double revenueLY = row.getCell(9).getNumericCellValue();
-					String destCity=row.getCell(1).getStringCellValue();
+					String name = row.getCell(1).getStringCellValue();
+					double revenueTY = row.getCell(2).getNumericCellValue();
+					double revenueLY = row.getCell(3).getNumericCellValue();
+					String destCity=row.getCell(0).getStringCellValue();
 
 					info = new TradeInfo();
 					info.setName(name);
@@ -91,12 +92,12 @@ public class ReadFiles {
 				}
 				sheetData.add(info);
 			}
-			sheetData.removeAll(Collections.singletonList(null));
+			     sheetData.removeAll(Collections.singletonList(null));
 
 			
 				Collection<String> companyNames = getCompanyNames(sheetData);				
 
-				setRevenuesPerCompany(sheetData, companyNames);
+				List<TradeInfo> finalList=setRevenuesPerCompany(sheetData, companyNames);
 				
 				
 				XSSFWorkbook newWB          = new XSSFWorkbook();
@@ -108,22 +109,51 @@ public class ReadFiles {
 				System.out.println("HEADER CREATED");
 				
 				
-				//for (int j = 39999; j <80000; j++) {
-					for (int j = 1; j <40000; j++) {
-					XSSFRow row     = newSheet.createRow(j); 
-					TradeInfo tradeInformation=sheetData.get(j-1);
+				for (int j = 0; j <finalList.size(); j++) {
+					XSSFRow row     = newSheet.createRow(j+1); 
+					TradeInfo tradeInformation=finalList.get(j);
 					
 					XSSFCell cell   = row.createCell((short)0); 
 					cell.setCellValue(tradeInformation.getName()); 
-					row.createCell((short)1).setCellValue(tradeInformation.getMarketRevenueTY()); 
-					row.createCell((short)2).setCellValue(tradeInformation.getAverageMarketRevenueTY());
-					row.createCell((short)3).setCellValue(tradeInformation.getMarketRevenueLY());
-					row.createCell((short)4).setCellValue(tradeInformation.getAverageMarketRevenueLY());
-					row.createCell((short)5).setCellValue(tradeInformation.getTotalMarketRevenueTY());
-					row.createCell((short)6).setCellValue(tradeInformation.getTotalMarketRevenueLY());
+					row.createCell((short)1).setCellValue(tradeInformation.getTotalMarketRevenueTY());
+					row.createCell((short)2).setCellValue(tradeInformation.getTotalMarketRevenueLY());
+					row.createCell((short)3).setCellValue(tradeInformation.getCityList().get(0).getName());
+					row.createCell((short)4).setCellValue(tradeInformation.getCityList().get(0).getTotalRevenue());
+					
+					if(tradeInformation.getCityList().size()>1)
+					{
+						row.createCell((short)5).setCellValue(tradeInformation.getCityList().get(1).getName());
+						row.createCell((short)6).setCellValue(tradeInformation.getCityList().get(1).getTotalRevenue());
+		
+					}
+					
+					if(tradeInformation.getCityList().size()>2)
+					{
+						row.createCell((short)7).setCellValue(tradeInformation.getCityList().get(2).getName());
+						row.createCell((short)8).setCellValue(tradeInformation.getCityList().get(2).getTotalRevenue());
+		
+					}
+	
 
 					
 				}
+				
+				//for (int j = 39999; j <80000; j++) {
+//					for (int j = 1; j <40000; j++) {
+//					XSSFRow row     = newSheet.createRow(j); 
+//					TradeInfo tradeInformation=sheetData.get(j-1);
+//					
+//					XSSFCell cell   = row.createCell((short)0); 
+//					cell.setCellValue(tradeInformation.getName()); 
+//					row.createCell((short)1).setCellValue(tradeInformation.getMarketRevenueTY()); 
+//					row.createCell((short)2).setCellValue(tradeInformation.getAverageMarketRevenueTY());
+//					row.createCell((short)3).setCellValue(tradeInformation.getMarketRevenueLY());
+//					row.createCell((short)4).setCellValue(tradeInformation.getAverageMarketRevenueLY());
+//					row.createCell((short)5).setCellValue(tradeInformation.getTotalMarketRevenueTY());
+//					row.createCell((short)6).setCellValue(tradeInformation.getTotalMarketRevenueLY());
+//
+//					
+//				}
 				/*
 				 * long i=1;
 				for (TradeInfo tradeInformation : sheetData) {
@@ -196,8 +226,10 @@ public class ReadFiles {
 
 	}
 
-	private static void setRevenuesPerCompany(List<TradeInfo> sheetData,
+	private static List<TradeInfo> setRevenuesPerCompany(List<TradeInfo> sheetData,
 			Collection<String> companyNames) {
+		List<TradeInfo> finalList=new ArrayList<TradeInfo>();
+		
 		for (String name : companyNames) {
 
 			List<TradeInfo> companyInfoList = getCompanyInfoListByName(
@@ -239,8 +271,16 @@ public class ReadFiles {
 					city.setTotalRevenue(totalRevenue);					
 					cityList.add(city);
 				}
+			CityComparator comparator=new CityComparator();	
+			Collections.sort(cityList, comparator);	
+				
+			TradeInfo info=	companyInfoList.get(0);
+			info.setCityList(cityList);
+			finalList.add(info);
 
 		}
+		
+		return finalList;
 	}
 
 	private static double getTotalRevenueByCity(
@@ -299,8 +339,8 @@ public class ReadFiles {
 
 			distinctNmesList.add(tradeInfo.getDestinationCity());
 		}
-		System.out.println("there are " + distinctNmesList.size()
-				+ " different cities for this company");
+//		System.out.println("there are " + distinctNmesList.size()
+//				+ " different cities for this company");
 
 		return distinctNmesList;
 
@@ -315,31 +355,55 @@ public class ReadFiles {
 		cell.setCellValue("Head Office"); 
 		cell.setCellStyle(cellStyle);
 		
+//		XSSFCell cell2   = row.createCell((short)1); 
+//		cell2.setCellValue("Market Revenue TY");
+//		cell2.setCellStyle(cellStyle);
+//		
+//		XSSFCell cell4   = row.createCell((short)3); 
+//		cell4.setCellValue("Market Revenue LY");
+//		cell4.setCellStyle(cellStyle);
+//		
+//		cellStyle.setFillBackgroundColor(new HSSFColor.RED().getIndex());
+		
+//		XSSFCell cell3   = row.createCell((short)2); 
+//		cell3.setCellValue("Average Market Revenue TY");
+//		cell3.setCellStyle(cellStyle);
+//
+//		XSSFCell cell5   = row.createCell((short)4); 
+//		cell5.setCellValue("Average Market Revenue LY");
+//		cell5.setCellStyle(cellStyle);
+		
 		XSSFCell cell2   = row.createCell((short)1); 
-		cell2.setCellValue("Market Revenue TY");
+		cell2.setCellValue("TOTAL Market Revenue TY");
 		cell2.setCellStyle(cellStyle);
+
+		XSSFCell cell3   = row.createCell((short)2); 
+		cell3.setCellValue("TOTAL Market Revenue LY");
+		cell3.setCellStyle(cellStyle);
 		
 		XSSFCell cell4   = row.createCell((short)3); 
-		cell4.setCellValue("Market Revenue LY");
-		cell4.setCellStyle(cellStyle);
+		cell4.setCellValue("Profitable City 1");
 		
-		cellStyle.setFillBackgroundColor(new HSSFColor.RED().getIndex());
-		
-		XSSFCell cell3   = row.createCell((short)2); 
-		cell3.setCellValue("Average Market Revenue TY");
-		cell3.setCellStyle(cellStyle);
-
 		XSSFCell cell5   = row.createCell((short)4); 
-		cell5.setCellValue("Average Market Revenue LY");
-		cell5.setCellStyle(cellStyle);
+		cell5.setCellValue("Profitable City 1 Total Market Revenue");
 		
 		XSSFCell cell6   = row.createCell((short)5); 
-		cell6.setCellValue("TOTAL Market Revenue TY");
-		cell6.setCellStyle(cellStyle);
-
+		cell6.setCellValue("Profitable City 2");
+		
 		XSSFCell cell7   = row.createCell((short)6); 
-		cell7.setCellValue("TOTAL Market Revenue LY");
-		cell7.setCellStyle(cellStyle);
+		cell7.setCellValue("Profitable City 2 Total Market Revenue");
+
+		
+		XSSFCell cell8   = row.createCell((short)7); 
+		cell8.setCellValue("Profitable City 3");
+		
+		XSSFCell cell9   = row.createCell((short)8); 
+		cell9.setCellValue("Profitable City 3 Total Market Revenue");
+
+
+
+		
+		
 		
 //		row.createCell((short)1).setCellValue("Market Revenue TY");
 //		row.createCell((short)2).setCellValue("Average Market Revenue TY"); 

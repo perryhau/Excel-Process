@@ -1,7 +1,17 @@
+import java.util.ArrayList;
+import java.util.List;
+
 
 public class TradeInfo {
 	
 	private String name;
+	private List <City> cityList=new ArrayList<City>();
+	public List<City> getCityList() {
+		return cityList;
+	}
+	public void setCityList(List<City> cityList) {
+		this.cityList = cityList;
+	}
 	public String getName() {
 		return name;
 	}
